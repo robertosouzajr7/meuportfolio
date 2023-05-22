@@ -10,34 +10,32 @@ import { Text } from "@/styles/Text";
 import { useEffect, useState } from "react";
 import { FaGithub, FaShare } from "react-icons/fa";
 import { userData } from "@/utils/userData";
-
+import axios from "axios";
 interface ReposType {
   id: number;
   name: string;
   language: string;
   description: string;
-  git_url: string;
+  html_url: string;
   homepage: string;
 }
 
 export const Project = (): JSX.Element => {
   const [repositories, setRepositories] = useState<ReposType[]>([]);
 
+  /* fetch(
+        `https://api.github.com/users/${userData.githubUser}/repos`
+      ); */
+
   useEffect(() => {
     const fetchData = async () => {
-      const data: Response = await fetch(
-        `https://api.github.com/users/${userData.githubUser}/repos`
-      );
-
-      const json = await data.json();
-
-      setRepositories(json);
-
-      if (!data.ok) {
-        throw data;
-      }
-
-      return json;
+      await axios
+        .get(`https://api.github.com/users/${userData.githubUser}/repos`)
+        .then((res) => {
+          console.log(res.data);
+          setRepositories(res.data);
+        })
+        .catch((err) => console.log(err));
     };
     fetchData();
   }, []);
@@ -70,11 +68,11 @@ export const Project = (): JSX.Element => {
             {repository.description}
           </Text>
           <ProjectLinks>
-            <ProjectLink href={repository.git_url}>
+            <ProjectLink target="_blank" href={repository.html_url}>
               <FaGithub /> Github Code
             </ProjectLink>
             {repository.homepage && (
-              <ProjectLink href={repository.homepage}>
+              <ProjectLink target="_blank" href={repository.homepage}>
                 <FaShare /> Aplicação
               </ProjectLink>
             )}
